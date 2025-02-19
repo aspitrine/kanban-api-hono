@@ -5,7 +5,7 @@ import { paramsWithId } from '@/schema/utils';
 import boardService from '@/services/board';
 import { getAuthenticatedUserOrThrow } from '@/services/session';
 import { zValidator } from '@hono/zod-validator';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
@@ -20,8 +20,29 @@ boardRouter
     const boards = await db
       .select()
       .from(boardTable)
-      .where(eq(userBoardTable.userId, authUser.id))
-      .leftJoin(userBoardTable, eq(boardTable.id, userBoardTable.boardId));
+      .leftJoin(userBoardTable, eq(boardTable.id, userBoardTable.boardId))
+      .where(
+        and(
+          eq(userBoardTable.userId, authUser.id),
+          eq(userBoardTable.status, 'active'),
+        ),
+      );
+
+    return c.json(boards.map(({ board }) => board));
+  })
+  .get('/pending', async (c) => {
+    const authUser = await getAuthenticatedUserOrThrow(c);
+
+    const boards = await db
+      .select()
+      .from(boardTable)
+      .leftJoin(userBoardTable, eq(boardTable.id, userBoardTable.boardId))
+      .where(
+        and(
+          eq(userBoardTable.userId, authUser.id),
+          eq(userBoardTable.status, 'pending'),
+        ),
+      );
 
     return c.json(boards.map(({ board }) => board));
   })
@@ -73,6 +94,7 @@ boardRouter
         userId: authUser.id,
         boardId: boardCreated.id,
         role: 'admin',
+        status: 'active',
       });
 
       return boardCreated;

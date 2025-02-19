@@ -15,6 +15,13 @@
       "when": 1739975820910,
       "tag": "0001_tough_kabuki",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1739981805024,
+      "tag": "0002_wide_praxagora",
+      "breakpoints": true
     }
   ]
 }

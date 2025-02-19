@@ -4,13 +4,17 @@ import {
   pgTable,
   serial,
   timestamp,
-  varchar,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { userTable } from './user';
 import { boardTable } from './board';
 
 export const boardRoleEnum = pgEnum('role', ['admin', 'member']);
+export const boardStatusEnum = pgEnum('status', [
+  'active',
+  'suspended',
+  'pending',
+]);
 
 export const userBoardTable = pgTable('user_board', {
   id: serial('id').primaryKey(),
@@ -21,6 +25,7 @@ export const userBoardTable = pgTable('user_board', {
     .notNull()
     .references(() => boardTable.id, { onDelete: 'cascade' }),
   role: boardRoleEnum().default('member'),
+  status: boardStatusEnum().default('pending'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
