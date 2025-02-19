@@ -8,6 +8,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { z } from 'zod';
 
 export const boardRouter = new Hono();
 
@@ -141,4 +142,38 @@ boardRouter
     }
 
     return c.json(boardDeleted);
-  });
+  })
+  .post(
+    '/:id/users',
+    zValidator('param', paramsWithId),
+    zValidator(
+      'json',
+      z.object({
+        userId: z.number().positive().int(),
+        role: z.union([z.literal('admin'), z.literal('member')]),
+      }),
+    ),
+    async (c) => {
+      const authUser = await getAuthenticatedUserOrThrow(c);
+
+      const boardId = c.req.valid('param').id;
+      const data = c.req.valid('json');
+      const hasWriteAccess = await boardService.hasWriteAccess(
+        boardId,
+        authUser.id,
+      );
+
+      if (!hasWriteAccess) {
+        throw new HTTPException(403, {
+          message: 'You do not have access to this board',
+        });
+      }
+
+      await db.insert(userBoardTable).values({
+        boardId,
+        ...data,
+      });
+
+      return c.json({ message: 'User added to board' });
+    },
+  );
