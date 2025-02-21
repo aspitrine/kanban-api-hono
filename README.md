@@ -17,3 +17,7 @@
 ## Development
 
 - Run the server in development mode (`npm run dev`)
+
+## Documentation
+
+- The API documentation is available at `http://localhost:3000/docs`

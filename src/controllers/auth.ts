@@ -1,5 +1,7 @@
 import { db } from '@/db';
 import { userTable } from '@/db/schema';
+import { userSelectSchema } from '@/schema/user';
+import { messageSchema } from '@/schema/utils';
 import {
   createSession,
   generateSessionToken,
@@ -7,10 +9,12 @@ import {
   invalidateSession,
 } from '@/services/session';
 import { getEnv } from '@/utils/env';
-import { zValidator } from '@hono/zod-validator';
+import { response200, response400, response401 } from '@/utils/openapi';
 import { hash, verify } from '@node-rs/argon2';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { describeRoute } from 'hono-openapi';
+import { validator } from 'hono-openapi/zod';
 import { setSignedCookie, deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
@@ -21,7 +25,14 @@ authRouter
   .basePath('/auth')
   .post(
     '/signin',
-    zValidator(
+    describeRoute({
+      description: 'Sign in',
+      responses: {
+        200: response200(userSelectSchema.omit({ password: true })),
+        401: response401(z.literal('Invalid email or password')),
+      },
+    }),
+    validator(
       'json',
       z.object({
         email: z.string().email(),
@@ -68,7 +79,14 @@ authRouter
   )
   .post(
     '/signup',
-    zValidator(
+    describeRoute({
+      description: 'Sign up',
+      responses: {
+        200: response200(userSelectSchema.omit({ password: true })),
+        400: response400(z.literal('User already exists')),
+      },
+    }),
+    validator(
       'json',
       z.object({
         name: z.string(),
@@ -113,18 +131,28 @@ authRouter
       return c.json(user);
     },
   )
-  .get('/signout', async (c) => {
-    // Clear the session cookie
-    const token = await getSessionTokenCookie(c);
-
-    if (token) {
-      await invalidateSession(token);
-
+  .get(
+    '/signout',
+    describeRoute({
+      description: 'Sign out',
+      responses: {
+        200: response200(messageSchema),
+        401: response401(),
+      },
+    }),
+    async (c) => {
       // Clear the session cookie
-      deleteCookie(c, 'session');
-    }
+      const token = await getSessionTokenCookie(c);
 
-    return c.json({
-      message: 'Signed out',
-    });
-  });
+      if (token) {
+        await invalidateSession(token);
+
+        // Clear the session cookie
+        deleteCookie(c, 'session');
+      }
+
+      return c.json({
+        message: 'Signed out',
+      });
+    },
+  );

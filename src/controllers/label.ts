@@ -1,46 +1,69 @@
 import { db } from '@/db';
 import { labelTable } from '@/db/schema';
-import { labelCreateSchema, labelUpdateSchema } from '@/schema/label';
+import {
+  labelCreateSchema,
+  labelSelectSchema,
+  labelUpdateSchema,
+} from '@/schema/label';
 import { paramsWithId } from '@/schema/utils';
 import boardService from '@/services/board';
 import labelService from '@/services/label';
-import {
-  getAuthenticatedUser,
-  getAuthenticatedUserOrThrow,
-} from '@/services/session';
-import { zValidator } from '@hono/zod-validator';
+import { getAuthenticatedUserOrThrow } from '@/services/session';
+import { response200, response401, response403 } from '@/utils/openapi';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { describeRoute } from 'hono-openapi';
+import { validator } from 'hono-openapi/zod';
 import { HTTPException } from 'hono/http-exception';
 
 export const labelRouter = new Hono();
 
 labelRouter
   .basePath('/labels')
-  .post('/', zValidator('json', labelCreateSchema), async (c) => {
-    const authUser = await getAuthenticatedUserOrThrow(c);
+  .post(
+    '/',
+    describeRoute({
+      description: 'Create a label',
+      responses: {
+        200: response200(labelSelectSchema),
+        401: response401(),
+        403: response403(),
+      },
+    }),
+    validator('json', labelCreateSchema),
+    async (c) => {
+      const authUser = await getAuthenticatedUserOrThrow(c);
 
-    const data = c.req.valid('json');
+      const data = c.req.valid('json');
 
-    const hasWriteAccess = await boardService.hasWriteAccess(
-      authUser.id,
-      data.boardId,
-    );
+      const hasWriteAccess = await boardService.hasWriteAccess(
+        authUser.id,
+        data.boardId,
+      );
 
-    if (!hasWriteAccess) {
-      throw new HTTPException(403, {
-        message: 'You do not have access to this board',
-      });
-    }
+      if (!hasWriteAccess) {
+        throw new HTTPException(403, {
+          message: 'You do not have access to this board',
+        });
+      }
 
-    const label = await db.insert(labelTable).values(data).returning();
+      const label = await db.insert(labelTable).values(data).returning();
 
-    return c.json(label);
-  })
+      return c.json(label);
+    },
+  )
   .patch(
     '/:id',
-    zValidator('param', paramsWithId),
-    zValidator('json', labelUpdateSchema),
+    describeRoute({
+      description: 'Update a label',
+      responses: {
+        200: response200(labelSelectSchema),
+        401: response401(),
+        403: response403(),
+      },
+    }),
+    validator('param', paramsWithId),
+    validator('json', labelUpdateSchema),
     async (c) => {
       const authUser = await getAuthenticatedUserOrThrow(c);
 
@@ -64,23 +87,35 @@ labelRouter
       return c.json(labelUpdated);
     },
   )
-  .delete('/:id', zValidator('param', paramsWithId), async (c) => {
-    const authUser = await getAuthenticatedUserOrThrow(c);
+  .delete(
+    '/:id',
+    describeRoute({
+      description: 'Delete a label',
+      responses: {
+        200: response200(labelSelectSchema),
+        401: response401(),
+        403: response403(),
+      },
+    }),
+    validator('param', paramsWithId),
+    async (c) => {
+      const authUser = await getAuthenticatedUserOrThrow(c);
 
-    const id = c.req.valid('param').id;
+      const id = c.req.valid('param').id;
 
-    const hasWriteAccess = await labelService.hasWriteAccess(id, authUser.id);
+      const hasWriteAccess = await labelService.hasWriteAccess(id, authUser.id);
 
-    if (!hasWriteAccess) {
-      throw new HTTPException(403, {
-        message: 'You do not have access to this label',
-      });
-    }
+      if (!hasWriteAccess) {
+        throw new HTTPException(403, {
+          message: 'You do not have access to this label',
+        });
+      }
 
-    const [labelDeleted] = await db
-      .delete(labelTable)
-      .where(eq(labelTable.id, id))
-      .returning();
+      const [labelDeleted] = await db
+        .delete(labelTable)
+        .where(eq(labelTable.id, id))
+        .returning();
 
-    return c.json(labelDeleted);
-  });
+      return c.json(labelDeleted);
+    },
+  );
