@@ -142,6 +142,9 @@ Un formulaire de connexion est déjà présent, mais il n'est pas encore fonctio
 Il vous est demandé :
 - d'appeler l'API pour l'authentification ([voir la documentation de l'API pour plus d'informations](http://localhost:3000/docs#tag/default/POST/api/v1/auth/signin))
   - utiliser l'instance Axios déjà configurée dans `packages/frontend/src/utils/axios.ts`
+- utiliser le compte utilisateur de test créer lors du seeding de la base de données
+  - email : `test@test.io`
+  - mot de passe : `password`
 - en cas d'erreur, afficher un message d'erreur
 - en cas de succès, rediriger l'utilisateur vers la page `/boards` qui sera à créer dans l'exercice suivant.
   - utiliser le hook [useNavigate](https://reactrouter.com/start/library/navigating#usenavigate) de React Router pour cela
