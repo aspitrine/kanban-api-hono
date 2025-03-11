@@ -281,8 +281,9 @@ boardRouter
       }
 
       await db.insert(userBoardTable).values({
-        boardId,
         ...data,
+        boardId,
+        status: 'pending',
       });
 
       return c.json({ message: 'User added to board' });

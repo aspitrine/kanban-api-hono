@@ -11,8 +11,16 @@ import { apiReference } from '@scalar/hono-api-reference';
 
 const app = new Hono();
 
-app.use(csrf());
-app.use(cors());
+app.use(
+  csrf({
+    origin: getEnv().CORS_ORIGIN,
+  }),
+);
+app.use(
+  cors({
+    origin: getEnv().CORS_ORIGIN,
+  }),
+);
 
 // On ajoute le middleware de gestion des sessions
 // pour rafraîchir les tokens de session automatiquement si besoin
@@ -25,9 +33,8 @@ app.get(
   openAPISpecs(app, {
     documentation: {
       info: {
-        title: 'Hono API',
+        title: 'Kanban API',
         version: '1.0.0',
-        description: 'Greeting API',
       },
       servers: [{ url: 'http://localhost:3000', description: 'Local Server' }],
     },
