@@ -11,9 +11,10 @@ import { boardTable } from './board';
 
 export const boardRoleEnum = pgEnum('role', ['admin', 'member']);
 export const boardStatusEnum = pgEnum('status', [
-  'active',
+  'accepted',
   'suspended',
   'pending',
+  'declined',
 ]);
 
 export const userBoardTable = pgTable('user_board', {

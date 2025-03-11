@@ -42,7 +42,7 @@ boardRouter
         .where(
           and(
             eq(userBoardTable.userId, authUser.id),
-            eq(userBoardTable.status, 'active'),
+            eq(userBoardTable.status, 'accepted'),
           ),
         );
 
@@ -152,7 +152,7 @@ boardRouter
           userId: authUser.id,
           boardId: boardCreated.id,
           role: 'admin',
-          status: 'active',
+          status: 'accepted',
         });
 
         return boardCreated;
@@ -335,23 +335,28 @@ boardRouter
     },
   )
   .post(
-    '/:id/accept',
+    '/:id/:status',
     describeRoute({
-      description: 'Accept an invitation to a board',
+      description: 'Accept or decline an invitation to a board',
       responses: {
         200: response200(messageSchema),
         401: response401(),
       },
     }),
-    validator('param', paramsWithId),
+    validator(
+      'param',
+      paramsWithId.extend({
+        status: z.union([z.literal('accepted'), z.literal('declined')]),
+      }),
+    ),
     async (c) => {
       const authUser = await getAuthenticatedUserOrThrow(c);
 
-      const boardId = c.req.valid('param').id;
+      const { id: boardId, status } = c.req.valid('param');
 
       await db
         .update(userBoardTable)
-        .set({ status: 'active' })
+        .set({ status })
         .where(
           and(
             eq(userBoardTable.boardId, boardId),

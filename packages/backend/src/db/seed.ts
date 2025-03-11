@@ -27,7 +27,7 @@ await db.insert(userBoardTable).values({
   boardId: board.id,
   userId: user.id,
   role: 'admin',
-  status: 'active',
+  status: 'accepted',
 });
 
 await pool.end();

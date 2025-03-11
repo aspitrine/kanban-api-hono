@@ -278,7 +278,13 @@ Encore du temps ?
 
 - Ajouter des fonctionnalités à votre application
   - Page de modification d'un board
+  - Page pour ajouter des membres à un board
+  - Page pour voir les boards sur lesquels on est invité
+    - Pouvoir accepter ou refuser l'invitation
+  
   - Page de détail d'un board
     - Afficher les listes, les cartes et les labels
     - Drag & Drop des listes et des cartes
   - ...
+
+Rappel: toutes les routes d'API sont documentées [ici](http://localhost:3000/docs)
