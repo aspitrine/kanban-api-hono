@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "usernamehw.errorlens",
+    "bradlc.vscode-tailwindcss",
+    "moalamri.inline-fold",
+    "YoavBls.pretty-ts-errors"
+  ]
+}

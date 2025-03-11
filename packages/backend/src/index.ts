@@ -12,12 +12,14 @@ import { apiReference } from '@scalar/hono-api-reference';
 const app = new Hono();
 
 app.use(
-  csrf({
+  cors({
     origin: getEnv().CORS_ORIGIN,
+    credentials: true,
   }),
 );
+
 app.use(
-  cors({
+  csrf({
     origin: getEnv().CORS_ORIGIN,
   }),
 );
