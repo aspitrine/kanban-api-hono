@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { boardTable, userBoardTable } from '@/db/schema';
+import { boardTable, userBoardTable, userTable } from '@/db/schema';
 import {
   boardCreateSchema,
   boardSelectSchema,
@@ -245,7 +245,7 @@ boardRouter
   .post(
     '/:id/users',
     describeRoute({
-      description: 'Add a user to a board',
+      description: 'Add a user to a board from their email',
       responses: {
         200: response200(messageSchema),
         401: response401(),
@@ -260,7 +260,7 @@ boardRouter
     validator(
       'json',
       z.object({
-        userId: z.number().positive().int(),
+        email: z.string().email(),
         role: z.union([z.literal('admin'), z.literal('member')]),
       }),
     ),
@@ -268,7 +268,7 @@ boardRouter
       const authUser = await getAuthenticatedUserOrThrow(c);
 
       const boardId = c.req.valid('param').id;
-      const data = c.req.valid('json');
+      const { email, ...data } = c.req.valid('json');
       const hasWriteAccess = await boardService.hasWriteAccess(
         boardId,
         authUser.id,
@@ -280,8 +280,21 @@ boardRouter
         });
       }
 
+      const [userToAdd] = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.email, email))
+        .limit(1);
+
+      if (!userToAdd) {
+        throw new HTTPException(404, {
+          message: 'User not found',
+        });
+      }
+
       await db.insert(userBoardTable).values({
         ...data,
+        userId: userToAdd.id,
         boardId,
         status: 'pending',
       });
