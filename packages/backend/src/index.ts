@@ -52,7 +52,7 @@ app.get(
 );
 
 const port = getEnv().PORT;
-console.log(`Server is running on http://localhost:${port}`);
+console.log(`show docs http://localhost:${port}/docs`);
 
 serve({
   fetch: app.fetch,
