@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1739893473789,
-      "tag": "0000_shocking_ultimatum",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1739975820910,
-      "tag": "0001_tough_kabuki",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1739981805024,
-      "tag": "0002_wide_praxagora",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1741727242230,
-      "tag": "0003_eager_valeria_richards",
+      "when": 1741728946293,
+      "tag": "0000_nasty_mysterio",
       "breakpoints": true
     }
   ]
