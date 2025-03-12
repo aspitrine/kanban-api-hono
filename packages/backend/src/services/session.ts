@@ -8,7 +8,7 @@ import { db } from '@/db';
 import { eq } from 'drizzle-orm';
 import type { Context } from 'hono';
 import { getEnv } from '@/utils/env';
-import { getSignedCookie, setSignedCookie, deleteCookie } from 'hono/cookie';
+import { getSignedCookie, deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 
 export function generateSessionToken(): string {

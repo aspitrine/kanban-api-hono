@@ -18,6 +18,7 @@ export const autoRefreshSession = createMiddleware(async (context, next) => {
     if (session) {
       const { ENV, SESSION_SECRET } = getEnv();
       await setSignedCookie(context, 'session', token, SESSION_SECRET, {
+        httpOnly: true,
         expires: session.expiresAt,
         secure: ENV === 'prod',
         sameSite: 'Lax',

@@ -67,6 +67,7 @@ authRouter
       // Set the session token in a signed cookie
       const { ENV, SESSION_SECRET } = getEnv();
       await setSignedCookie(c, 'session', token, SESSION_SECRET, {
+        httpOnly: true,
         expires: session.expiresAt,
         secure: ENV === 'prod',
         sameSite: 'Lax',
@@ -123,6 +124,7 @@ authRouter
       // Set the session token in a signed cookie
       const { ENV, SESSION_SECRET } = getEnv();
       await setSignedCookie(c, 'session', token, SESSION_SECRET, {
+        httpOnly: true,
         expires: session.expiresAt,
         secure: ENV === 'prod',
         sameSite: 'Lax',
