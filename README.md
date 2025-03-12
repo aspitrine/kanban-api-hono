@@ -69,7 +69,7 @@ pnpm back:db:seed
 Dans **deux terminaux distincts** :
 
 ```bash
-# Lancer le serveur Express pour l'API
+# Lancer le serveur http pour l'API
 # Port par défaut : 3000
 pnpm back:dev
 ```
@@ -92,7 +92,7 @@ Documentation
 Il s'agit d'un mono-dépôt, géré par `pnpm`, une surcouche à NPM.
 
 - le code `React` se trouve dans `packages/frontend`
-- le code `Express` se trouve dans `packages/backend`
+- le code `Node` se trouve dans `packages/backend`
 
 Si besoin d'installer un package, voici la commande à fournir :
 
